@@ -19,46 +19,8 @@ void MainForm::SetTextPosition(WPARAM wParam)
 	GetClientRect(hWnd, &rc);
 	switch (LOWORD(wParam))
 	{
-	case VK_DOWN:
-		if (this->td.textY + 10 >= 0 && this->td.textY + 10 <= rc.bottom - 20)
-		{
-			InvalidateRect(hWnd, NULL, 1);
-			SetCurrentText(_T("Going down... Nooo!"));
-			this->td.textY += 5;
-			UpdateWindow(hWnd);
-		}
-		break;
-	case VK_RIGHT:
-		if (this->td.textX + 10 >= 0 && this->td.textX + 5 <= rc.right - 20)
-		{
-			InvalidateRect(hWnd, NULL, 1);
-			SetCurrentText(_T("Going right... Weee!"));	
-			this->td.textX += 5;
-			UpdateWindow(hWnd);
-		}
-		break;
-	case VK_LEFT:
-		if (this->td.textX - 10 >= 0)
-		{
-			InvalidateRect(hWnd, NULL, 1);
-			SetCurrentText(_T("Going left... Whoops!"));
-			this->td.textX -= 5;
-			UpdateWindow(hWnd);
-		}
-		break;
-	case VK_UP:
-		if (this->td.textY - 10 >= 0)
-		{
-			InvalidateRect(hWnd, NULL, 1);
-			SetCurrentText(_T("Going up... Yahoo!"));
-			this->td.textY -= 5;
-			UpdateWindow(hWnd);
-		}
-		break;
-	case VK_RETURN:
-		InvalidateRect(hWnd, NULL, 1);
-		SetCurrentText(_T("Enter key pressed!"));
-		UpdateWindow(hWnd);
+	case VK_ESCAPE:
+		PostQuitMessage(0);
 		break;
 	default:
 		break;
@@ -72,8 +34,6 @@ void MainForm::SetTextPosition(LPARAM lParam)
 	wchar_t * wcstring = new wchar_t[ss.str().size() + 1];
 	size_t convertedChars = 0;
 	mbstowcs_s(&convertedChars, wcstring, ss.str().size() + 1, ss.str().c_str(), _TRUNCATE);
-	this->td.textX = GET_X_LPARAM(lParam);
-	this->td.textY = GET_Y_LPARAM(lParam);
 
 	InvalidateRect(hWnd, NULL, 1);
 	SetCurrentText(wcstring);
@@ -93,4 +53,55 @@ TCHAR* MainForm::GetCurrentText()
 void MainForm::SetHwnd(HWND hWnd)
 {
 	this->hWnd = hWnd;
+}
+
+void MainForm::SetWindowSizeData(WindowSizeData wsd)
+{
+	this->wsd = wsd;
+}
+
+bool MainForm::HandleKeyboardInput(WPARAM wParam)
+{
+	switch(LOWORD(wParam))
+	{
+	case VK_ESCAPE:
+		PostQuitMessage(0);
+		return true;
+		break;
+	default:
+		return false;
+		break;
+	}
+	return false;
+}
+
+WindowSizeData MainForm::GetWindowSizeData()
+{
+	return this->wsd;
+}
+
+MainTextForm::MainTextForm(HWND parentHwnd, WindowSizeData wsd)
+{
+	this->currentText = NULL;
+	this->parentHwnd = parentHwnd;
+
+	this->formHwnd = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("Edit"), TEXT(""),
+		WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL,
+		0, 20, wsd.width - 100, wsd.height - 100, this->parentHwnd, NULL, NULL, NULL);
+
+}
+
+void MainTextForm::SetFormText(wchar_t * text)
+{
+	SetWindowText(this->formHwnd, text);
+}
+
+wchar_t * MainTextForm::GetFormText()
+{
+	return currentText;
+}
+
+void MainTextForm::SetFormSize(WindowSizeData wsd)
+{
+	SetWindowPos(this->formHwnd, NULL, 0, 20, wsd.width - 100, wsd.height - 100, NULL);
 }
