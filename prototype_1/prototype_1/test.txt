@@ -1,5 +1,2 @@
-This is a line!
-This is another line!
-And this is the third line!
-Let's pretend that there is one more line, can we open it correctly?
-Good! Now it works.
+Русский текст.
+English text.

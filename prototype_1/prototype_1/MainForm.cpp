@@ -91,9 +91,9 @@ MainTextForm::MainTextForm(HWND parentHwnd, WindowSizeData wsd)
 
 }
 
-void MainTextForm::SetFormText(wchar_t * text)
+void MainTextForm::SetFormText(std::wstring text)
 {
-	SetWindowText(this->formHwnd, text);
+	SetWindowText(this->formHwnd, text.c_str());
 }
 
 wchar_t * MainTextForm::GetFormText()

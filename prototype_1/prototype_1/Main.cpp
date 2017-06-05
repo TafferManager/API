@@ -2,15 +2,16 @@
 
 #define ID_FILE_EXIT   9001
 #define ID_STUFF_GO    9002
-#define ID_CHANGE_TEXT 9003
-#define ID_CHANGE_BACK 9004
+#define ID_OPEN        9003
 
 WindowSizeData wsd;
 IPrototypeForm * textForm;
+FileManager * fm;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 void LoadComboBoxItems(HWND hWndComboBox);
 WindowSizeData SetWindowSize(float width, float height);
+void ShowOpenFileDialog();
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -43,7 +44,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, wsd.xPos, wsd.yPos,
 		 wsd.width, wsd.height, NULL, NULL, hInstance, NULL);
-
+	
 	if (!hWnd)
 	{
 		DWORD lastError = GetLastError();
@@ -51,10 +52,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
     textForm = new MainTextForm(hWnd, wsd);
-	FileManager * fm = new FileManager;
-	wchar_t * text;
-	fm->ReadTextFromFileW("test.txt", text);
-	textForm->SetFormText(text);
+	fm = new FileManager;
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
@@ -80,13 +78,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_CREATE:
-		/*HMENU hMenu, hSubMenu;
+		HMENU hMenu, hSubMenu;
 
 		hMenu = CreateMenu();
 
 		hSubMenu = CreatePopupMenu();
-		AppendMenu(hSubMenu, MF_STRING, ID_CHANGE_TEXT, _T("T&ext"));
-		AppendMenu(hSubMenu, MF_STRING, ID_CHANGE_BACK, _T("Text &Back"));
+		AppendMenu(hSubMenu, MF_STRING, ID_OPEN, _T("O&pen"));
 		AppendMenu(hSubMenu, MF_STRING, ID_FILE_EXIT, _T("E&xit"));
 		AppendMenu(hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, _T("&File"));
 
@@ -94,7 +91,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		AppendMenu(hSubMenu, MF_STRING | MF_GRAYED, ID_STUFF_GO, _T("&Go"));
 		AppendMenu(hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, _T("&Stuff"));
 
-		SetMenu(hWnd, hMenu);*/
+		SetMenu(hWnd, hMenu);
 		break;
 	case WM_SIZE:
 		RECT rc;
@@ -102,8 +99,45 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		GetClientRect(hWnd, &rc);
 		wsd.width = rc.right;
 		wsd.height = rc.bottom;
-		textForm->SetFormSize(wsd);
+		if (textForm)
+		{
+			textForm->SetFormSize(wsd);
+		}
 		break;
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case ID_OPEN:
+			OPENFILENAME ofn;
+			wchar_t szFile[260];
+
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = hWnd;
+			ofn.lpstrFile = szFile;
+			ofn.lpstrFile[0] = '\0';
+			ofn.nMaxFile = sizeof(szFile);
+			ofn.lpstrFilter = TEXT("All\0*.*\0Text\0*.TXT\0");
+			ofn.nFilterIndex = 1;
+			ofn.lpstrFileTitle = NULL;
+			ofn.nMaxFileTitle = 0;
+			ofn.lpstrInitialDir = NULL;
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+			//Display the Open dialog box.
+
+			if (GetOpenFileName(&ofn) == TRUE)
+			{
+				std::wstring text;
+				text = fm->ReadTextFromFileW(ofn.lpstrFile);
+				textForm->SetFormText(text);
+			}
+			return DefWindowProc(hWnd, message, wParam, lParam);
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+			break;
+		}
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;

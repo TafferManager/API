@@ -1,46 +1,31 @@
 #include "Application.h"
 
-void FileManager::ReadTextFromFile(const char * path, std::string *& buffer)
+std::wstring FileManager::ReadTextFromFileW(const TCHAR * path)
 {
-	std::string readText;
-	hFile.open(path);
+	std::wstring readText;
+	HANDLE hFile = CreateFile(path, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	DWORD error = GetLastError();
+	HANDLE hFileMapping = CreateFileMapping(hFile, NULL, PAGE_READWRITE, 0, 0, NULL);
+	LPVOID viewAddress = MapViewOfFile(hFileMapping, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 
-	if (hFile)
+	char * pData;
+
+	pData = (char*) viewAddress;
+	if (pData)
 	{
-		while (std::getline(hFile, line))
-		{
-			readText.append(line);
-		}
+		std::string data = pData;
+		readText.assign(data.begin(), data.end());
+		UnmapViewOfFile(viewAddress);
+		CloseHandle(hFileMapping);
+		CloseHandle(hFile);
+		viewAddress = NULL;
+		hFileMapping = NULL;
+		hFile = NULL;
 	}
-	
-	else MessageBox(NULL, TEXT("Couldn't open file!"), TEXT("Error!"), NULL);
-
-	hFile.close();
-	buffer = &readText;
-}
-
-void FileManager::ReadTextFromFileW(const char * path, wchar_t *& buffer)
-{
-	std::string readText;
-	wchar_t * readBuffer;
-	hFile.open(path);
-
-	if (hFile)
+	else
 	{
-		while (std::getline(hFile, line))
-		{
-			readText.append(line);
-			readText.append("\r\n");
-		}
+		MessageBox(NULL, _T("File view returned NULL."), _T("Error"), NULL);
 	}
 
-	else MessageBox(NULL, TEXT("Couldn't open file!"), TEXT("Error!"), NULL);
-
-	hFile.close();
-	size_t size = readText.size() + 1;
-	readBuffer = new wchar_t[size];
-
-	size_t outSize;
-	mbstowcs_s(&outSize, readBuffer, size, readText.c_str(), size - 1);
-	buffer = readBuffer;
+	return readText;
 }
