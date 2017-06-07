@@ -9,9 +9,8 @@ IPrototypeForm * textForm;
 FileManager * fm;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-void LoadComboBoxItems(HWND hWndComboBox);
-WindowSizeData SetWindowSize(float width, float height);
-void ShowOpenFileDialog();
+WindowSizeData SetWSDStruct(float width, float height);
+void ShowOpenFileDialog(HWND p_hWnd);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -38,9 +37,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return 1;
 	}
 
-	//mainForm = new MainForm();
-	wsd = SetWindowSize(1280.f, 720.f);
-	//mainForm->SetWindowSizeData(wsd);
+	wsd = SetWSDStruct(1280.f, 720.f);
 
 	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, wsd.xPos, wsd.yPos,
 		 wsd.width, wsd.height, NULL, NULL, hInstance, NULL);
@@ -70,8 +67,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	PAINTSTRUCT ps;
-	HDC hdc;
 	TCHAR greeting[] = _T("Original text.");
 	TCHAR changedText[] = _T("Changed text.");
 
@@ -86,10 +81,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		AppendMenu(hSubMenu, MF_STRING, ID_OPEN, _T("O&pen"));
 		AppendMenu(hSubMenu, MF_STRING, ID_FILE_EXIT, _T("E&xit"));
 		AppendMenu(hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, _T("&File"));
-
-		hSubMenu = CreatePopupMenu();
-		AppendMenu(hSubMenu, MF_STRING | MF_GRAYED, ID_STUFF_GO, _T("&Go"));
-		AppendMenu(hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, _T("&Stuff"));
 
 		SetMenu(hWnd, hMenu);
 		break;
@@ -108,31 +99,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (LOWORD(wParam))
 		{
 		case ID_OPEN:
-			OPENFILENAME ofn;
-			wchar_t szFile[260];
-
-			ZeroMemory(&ofn, sizeof(ofn));
-			ofn.lStructSize = sizeof(ofn);
-			ofn.hwndOwner = hWnd;
-			ofn.lpstrFile = szFile;
-			ofn.lpstrFile[0] = '\0';
-			ofn.nMaxFile = sizeof(szFile);
-			ofn.lpstrFilter = TEXT("All\0*.*\0Text\0*.TXT\0");
-			ofn.nFilterIndex = 1;
-			ofn.lpstrFileTitle = NULL;
-			ofn.nMaxFileTitle = 0;
-			ofn.lpstrInitialDir = NULL;
-			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-			//Display the Open dialog box.
-
-			if (GetOpenFileName(&ofn) == TRUE)
-			{
-				LPWSTR wText = fm->ReadTextFromFileW(ofn.lpstrFile);
-				textForm->SetFormText(wText);
-				free(wText);
-
-			}
+			ShowOpenFileDialog(hWnd);
 			return DefWindowProc(hWnd, message, wParam, lParam);
 			break;
 		case ID_FILE_EXIT:
@@ -151,33 +118,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-void LoadComboBoxItems(HWND hWndComboBox)
-{
-	TCHAR Planets[9][10] =
-	{
-		TEXT("Mercury"), TEXT("Venus"), TEXT("Terra"), TEXT("Mars"),
-		TEXT("Jupiter"), TEXT("Saturn"), TEXT("Uranus"), TEXT("Neptune"),
-		TEXT("Pluto??")
-	};
-
-	TCHAR A[16];
-	int k = 0;
-
-	memset(&A, 0, sizeof(A));
-	for (k = 0; k <= 8; k += 1)
-	{
-		wcscpy_s(A, sizeof(A) / sizeof(TCHAR), (TCHAR*)Planets[k]);
-
-		// Add string to combobox.
-		SendMessage(hWndComboBox, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)A);
-	}
-
-	// Send the CB_SETCURSEL message to display an initial item
-	//  in the selection field
-	SendMessage(hWndComboBox, CB_SETCURSEL, (WPARAM)1, (LPARAM)0);
-}
-
-WindowSizeData SetWindowSize(float width, float height)
+WindowSizeData SetWSDStruct(float width, float height)
 {
 	WindowSizeData wsd;
 
@@ -196,4 +137,32 @@ WindowSizeData SetWindowSize(float width, float height)
 	wsd.yPos = 0;
 
 	return wsd;
+}
+
+void ShowOpenFileDialog(HWND p_hWnd)
+{
+	OPENFILENAME ofn;
+	wchar_t szFile[260];
+
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = p_hWnd;
+	ofn.lpstrFile = szFile;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = TEXT("All\0*.*\0Text\0*.TXT\0");
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+	//Display the Open dialog box.
+
+	if (GetOpenFileName(&ofn) == TRUE)
+	{
+		LPWSTR wText = fm->ReadTextFromFileW(ofn.lpstrFile);
+		textForm->SetFormText(wText);
+		free(wText);
+	}
 }

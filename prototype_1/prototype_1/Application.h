@@ -16,11 +16,6 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #define HINST_THISCOMPONENT ((HINSTANCE) &__ImageBase)
 #endif // !HINST_THISCOMPONENT
 
-struct TextData
-{
-	int textX, textY;
-};
-
 struct WindowSizeData
 {
 	int xPos, yPos;
@@ -46,29 +41,6 @@ public:
 	void SetFormText(std::wstring wText);
 	wchar_t * GetFormText();
 	void SetFormSize(WindowSizeData wsd);
-};
-
-class MainForm
-{
-private:
-	HWND hWnd;
-	RECT rc;
-	TextData td;
-	WindowSizeData wsd;
-	TCHAR * currentText;
-
-public:
-	MainForm();
-	void SetTextPosition(WPARAM wParam);
-	void SetTextPosition(LPARAM lParam);
-	TextData GetTextData();
-	void SetCurrentText(TCHAR *);
-	TCHAR* GetCurrentText();
-	void DrawCurrentText();
-	void SetHwnd(HWND hWnd);
-	void SetWindowSizeData(WindowSizeData wsd);
-	bool HandleKeyboardInput(WPARAM wParam);
-	WindowSizeData GetWindowSizeData();
 };
 
 class FileManager

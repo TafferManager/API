@@ -7,9 +7,5 @@ d:\workdir\source\repos\api\prototype_1\prototype_1\main.cpp(92): warning C4311:
 d:\workdir\source\repos\api\prototype_1\prototype_1\main.cpp(92): warning C4302: приведение типов: усечение из "HMENU" к "UINT"
 d:\workdir\source\repos\api\prototype_1\prototype_1\main.cpp(74): warning C4101: hdc: неиспользованная локальная переменная
 d:\workdir\source\repos\api\prototype_1\prototype_1\main.cpp(73): warning C4101: ps: неиспользованная локальная переменная
-  FileManager.cpp
-d:\workdir\source\repos\api\prototype_1\prototype_1\filemanager.cpp(15): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
-d:\workdir\source\repos\api\prototype_1\prototype_1\filemanager.cpp(17): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
-  Создание кода...
   prototype_1.vcxproj -> D:\WorkDir\Source\Repos\API\prototype_1\x64\Debug\prototype_1.exe
   prototype_1.vcxproj -> D:\WorkDir\Source\Repos\API\prototype_1\x64\Debug\prototype_1.pdb (Partial PDB)
