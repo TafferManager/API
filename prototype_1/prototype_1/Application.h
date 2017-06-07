@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include <windowsx.h>
 #include <cstdlib>
-#include <iterator>
+#include <Richedit.h>
 #include <fstream>
 #include <istream>
 #include <iostream>
@@ -30,7 +30,7 @@ struct WindowSizeData
 class IPrototypeForm
 {
 public:
-	virtual void SetFormText(std::wstring text) = 0;
+	virtual void SetFormText(std::wstring wText) = 0;
 	virtual TCHAR * GetFormText() = 0;
 	virtual void SetFormSize(WindowSizeData wsd) = 0;
 };
@@ -43,7 +43,7 @@ private:
 	wchar_t * currentText;
 public:
 	MainTextForm(HWND parentHwnd, WindowSizeData wsd);
-	void SetFormText(std::wstring text);
+	void SetFormText(std::wstring wText);
 	wchar_t * GetFormText();
 	void SetFormSize(WindowSizeData wsd);
 };
@@ -77,5 +77,5 @@ private:
 	std::wifstream hFile;
 	std::wstring line;
 public:
-	std::wstring ReadTextFromFileW(const TCHAR * path);
+	LPWSTR ReadTextFromFileW(const TCHAR * path);
 };

@@ -128,11 +128,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			if (GetOpenFileName(&ofn) == TRUE)
 			{
-				std::wstring text;
-				text = fm->ReadTextFromFileW(ofn.lpstrFile);
-				textForm->SetFormText(text);
+				LPWSTR wText = fm->ReadTextFromFileW(ofn.lpstrFile);
+				textForm->SetFormText(wText);
+				free(wText);
+
 			}
 			return DefWindowProc(hWnd, message, wParam, lParam);
+			break;
+		case ID_FILE_EXIT:
+			PostQuitMessage(0);
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -145,49 +149,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
-	//switch (message)
-	//{
-	///*case WM_CREATE:
-
-
-	//	textForm = new MainTextForm(hWnd, wsd);
-	//	break;
-	//case WM_PAINT:
-	//	hdc = BeginPaint(hWnd, &ps);
-	//	EndPaint(hWnd, &ps);
-	//	break;*/
-	////case WM_MOUSEMOVE:
-	////	mainForm->SetTextPosition(lParam);
-	////	break;
-	////case WM_COMMAND:
-	////	switch (LOWORD(wParam))
-	////	{
-	////	case ID_FILE_EXIT:
-	////		PostQuitMessage(0);
-	////		break;
-	////	case ID_CHANGE_TEXT:
-	////		InvalidateRect(hWnd, NULL, 1);
-	////		//mainForm->SetCurrentText(changedText);
-	////		UpdateWindow(hWnd);
-	////		return DefWindowProc(hWnd, message, wParam, lParam);
-	////		break;
-	////	case ID_CHANGE_BACK:
-	////		InvalidateRect(hWnd, NULL, 1);
-	////		//mainForm->SetCurrentText(greeting);
-	////		UpdateWindow(hWnd);
-	////		return DefWindowProc(hWnd, message, wParam, lParam);
-	////		break;
-	////	default:
-	////		break;
-	////	}
-	////	break;
-	//case WM_DESTROY:
-	//	PostQuitMessage(0);
-	//	break;
-	//default:
-	//	return DefWindowProc(hWnd, message, lParam, wParam);
-	//}
-	//return 0;
 }
 
 void LoadComboBoxItems(HWND hWndComboBox)
