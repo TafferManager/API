@@ -15,6 +15,7 @@ MainTextForm::MainTextForm(HWND parentHwnd, WindowSizeData wsd)
 
 void MainTextForm::SetFormText(std::wstring wText)
 {
+	SendMessage(this->formHwnd, EM_SETLIMITTEXT, wText.length() + 100, 0);
 	SetWindowText(this->formHwnd, wText.c_str());
 }
 

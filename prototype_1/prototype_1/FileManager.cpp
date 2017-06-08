@@ -1,4 +1,7 @@
 #include "Application.h"
+#include "Tracer.h"
+
+extern ProtoTracer * p_protoTracer;
 
 LPWSTR FileManager::ReadTextFromFileW(const TCHAR * path)
 {
@@ -11,7 +14,10 @@ LPWSTR FileManager::ReadTextFromFileW(const TCHAR * path)
 	LPCCH data = (char*) viewAddress;
 	if (data)
 	{
+		char buffer[200];
 		size_t dataSize = strlen(data);
+		sprintf(buffer, "File has been mapped, %i bytes of data is ready for reading.", dataSize * sizeof(char));
+		p_protoTracer->WriteLogEntry(buffer);
 		wcharSize = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, data, dataSize, NULL, 0);
 		wStr = new WCHAR[wcharSize];
 		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, data, dataSize, wStr, wcharSize);

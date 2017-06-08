@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <windowsx.h>
 #include <cstdlib>
+#include <ctime>
 #include <Richedit.h>
 #include <fstream>
 #include <istream>

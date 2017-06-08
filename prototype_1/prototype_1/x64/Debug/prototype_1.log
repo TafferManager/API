@@ -1,0 +1,11 @@
+﻿  Main.cpp
+d:\workdir\source\repos\api\prototype_1\prototype_1\main.cpp(28): warning C4302: приведение типов: усечение из "LPWSTR" к "WORD"
+d:\workdir\source\repos\api\prototype_1\prototype_1\main.cpp(33): warning C4302: приведение типов: усечение из "LPWSTR" к "WORD"
+d:\workdir\source\repos\api\prototype_1\prototype_1\main.cpp(88): warning C4311: приведение типов: усечение указателя из "HMENU" в "UINT"
+d:\workdir\source\repos\api\prototype_1\prototype_1\main.cpp(88): warning C4302: приведение типов: усечение из "HMENU" к "UINT"
+d:\workdir\source\repos\api\prototype_1\prototype_1\main.cpp(92): warning C4311: приведение типов: усечение указателя из "HMENU" в "UINT"
+d:\workdir\source\repos\api\prototype_1\prototype_1\main.cpp(92): warning C4302: приведение типов: усечение из "HMENU" к "UINT"
+d:\workdir\source\repos\api\prototype_1\prototype_1\main.cpp(74): warning C4101: hdc: неиспользованная локальная переменная
+d:\workdir\source\repos\api\prototype_1\prototype_1\main.cpp(73): warning C4101: ps: неиспользованная локальная переменная
+  prototype_1.vcxproj -> D:\WorkDir\Source\Repos\API\prototype_1\x64\Debug\prototype_1.exe
+  prototype_1.vcxproj -> D:\WorkDir\Source\Repos\API\prototype_1\x64\Debug\prototype_1.pdb (Partial PDB)

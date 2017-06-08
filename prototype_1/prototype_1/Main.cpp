@@ -1,12 +1,14 @@
 #include "Application.h"
+#include "Tracer.h"
 
 #define ID_FILE_EXIT   9001
-#define ID_STUFF_GO    9002
-#define ID_OPEN        9003
+#define ID_FILE_OPEN   9002
 
 WindowSizeData wsd;
-IPrototypeForm * textForm;
-FileManager * fm;
+IPrototypeForm * p_textForm;
+FileManager * p_fm;
+ProtoTracer * p_protoTracer;
+std::stringstream ss("");
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 WindowSizeData SetWSDStruct(float width, float height);
@@ -15,7 +17,9 @@ void ShowOpenFileDialog(HWND p_hWnd);
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	static TCHAR szWindowClass[] = _T("win32app");
-	static TCHAR szTitle[] = _T("Win32 Application");
+	static TCHAR szTitle[] = _T("Prototype TextEd 0.9.1");
+
+	p_protoTracer = new ProtoTracer;
 
 	WNDCLASSEX wcex;
 	wcex.cbSize = sizeof(WNDCLASSEX);
@@ -44,12 +48,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	
 	if (!hWnd)
 	{
-		DWORD lastError = GetLastError();
 		MessageBox(NULL, _T("Call to CreateWindow failed!"), _T("Win32 Guided Tour"), NULL);
 	}
 
-    textForm = new MainTextForm(hWnd, wsd);
-	fm = new FileManager;
+	p_protoTracer->WriteLogEntry("Main window successfully created.");
+    p_textForm = new MainTextForm(hWnd, wsd);
+	if (p_textForm) p_protoTracer->WriteLogEntry("Text form successfully created and attached to the main window.");
+	p_fm = new FileManager;
+	if (p_fm) p_protoTracer->WriteLogEntry("File manager successfully created.");
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
@@ -67,9 +73,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	TCHAR greeting[] = _T("Original text.");
-	TCHAR changedText[] = _T("Changed text.");
-
 	switch (message)
 	{
 	case WM_CREATE:
@@ -78,11 +81,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		hMenu = CreateMenu();
 
 		hSubMenu = CreatePopupMenu();
-		AppendMenu(hSubMenu, MF_STRING, ID_OPEN, _T("O&pen"));
+		AppendMenu(hSubMenu, MF_STRING, ID_FILE_OPEN, _T("O&pen"));
 		AppendMenu(hSubMenu, MF_STRING, ID_FILE_EXIT, _T("E&xit"));
 		AppendMenu(hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, _T("&File"));
 
 		SetMenu(hWnd, hMenu);
+		if (hMenu)
+		{
+			p_protoTracer->WriteLogEntry("Menu created and appended to window.");
+		}
 		break;
 	case WM_SIZE:
 		RECT rc;
@@ -90,15 +97,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		GetClientRect(hWnd, &rc);
 		wsd.width = rc.right;
 		wsd.height = rc.bottom;
-		if (textForm)
+		if (p_textForm)
 		{
-			textForm->SetFormSize(wsd);
+			p_textForm->SetFormSize(wsd);
 		}
 		break;
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
-		case ID_OPEN:
+		case ID_FILE_OPEN:
 			ShowOpenFileDialog(hWnd);
 			return DefWindowProc(hWnd, message, wParam, lParam);
 			break;
@@ -161,8 +168,25 @@ void ShowOpenFileDialog(HWND p_hWnd)
 
 	if (GetOpenFileName(&ofn) == TRUE)
 	{
-		LPWSTR wText = fm->ReadTextFromFileW(ofn.lpstrFile);
-		textForm->SetFormText(wText);
+		char buffer[300];
+		char filename[260];
+		wcstombs(filename, ofn.lpstrFile, 200);
+		sprintf(buffer, "File %s has been opened.", filename);
+		p_protoTracer->WriteLogEntry(buffer);
+		LPWSTR wText = p_fm->ReadTextFromFileW(ofn.lpstrFile);
+		p_textForm->SetFormText(wText);
+
+		if (GetLastError() == (DWORD)0)
+		{
+			p_protoTracer->WriteLogEntry("Text data successfully loaded to text form, going to free text data memory...");
+		}
+
+		else
+		{
+			ZeroMemory(buffer, 300);
+			sprintf(buffer, "Error %d occured when setting text to the text form.", (int)GetLastError());
+			p_protoTracer->WriteLogEntry(buffer);
+		}
 		free(wText);
 	}
 }
