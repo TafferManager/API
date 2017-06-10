@@ -52,7 +52,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	p_protoTracer->WriteLogEntry("Main window has been successfully created.");
-    p_textForm = new MainTextForm(hWnd, wsd);
+    p_textForm = new MainTextForm(hWnd, hInstance, wsd);
 
 	if (p_textForm)
 		p_protoTracer->WriteLogEntry("Text form has been successfully created.");

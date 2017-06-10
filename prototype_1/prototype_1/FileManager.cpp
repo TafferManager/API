@@ -18,9 +18,9 @@ LPWSTR FileManager::ReadTextFromFileW(const TCHAR * path)
 		size_t dataSize = strlen(data);
 		sprintf_s(buffer, 200, "File has been mapped, %i bytes of data is ready for reading.", dataSize * sizeof(char));
 		p_protoTracer->WriteLogEntry(buffer);
-		wcharSize = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, data, dataSize, NULL, 0);
+		wcharSize = MultiByteToWideChar(CP_UTF8, 0, data, dataSize, NULL, 0);
 		wStr = new WCHAR[wcharSize];
-		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, data, dataSize, wStr, wcharSize);
+		MultiByteToWideChar(CP_UTF8, 0, data, dataSize, wStr, wcharSize);
 		UnmapViewOfFile(viewAddress);
 		CloseHandle(hFileMapping);
 		CloseHandle(hFile);

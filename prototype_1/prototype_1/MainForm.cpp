@@ -1,15 +1,15 @@
 #include "Application.h"
 
-MainTextForm::MainTextForm(HWND parentHwnd, WindowSizeData wsd)
+MainTextForm::MainTextForm(HWND parentHwnd, HINSTANCE hInstance, WindowSizeData wsd)
 {
-	this->currentText = NULL;
+	this->currentText = L"";
 	this->parentHwnd = parentHwnd;
 
 	LoadLibrary(TEXT("Msftedit.dll"));
 
-	this->formHwnd = CreateWindowEx(0, TEXT("Edit"), TEXT(""),
+	this->formHwnd = CreateWindowEx(0, MSFTEDIT_CLASS, 0,
 		ES_MULTILINE | ES_AUTOHSCROLL | ES_AUTOVSCROLL | WS_VSCROLL | WS_HSCROLL | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP,
-		0, 20, wsd.width - 100, wsd.height - 100, this->parentHwnd, NULL, NULL, NULL);
+		0, 20, wsd.width - 100, wsd.height - 100, this->parentHwnd, NULL, hInstance, NULL);
 }
 
 void MainTextForm::SetFormText(LPCWSTR lpstrText)
@@ -22,6 +22,7 @@ void MainTextForm::SetFormText(LPCWSTR lpstrText)
 void MainTextForm::SetFormText(std::string strData)
 {
 	SendMessage(formHwnd, EM_SETLIMITTEXT, strData.length() + 100, 0);
+	SetFocus(formHwnd);
 	SetWindowTextA(formHwnd, strData.c_str());
 }
 

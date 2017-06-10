@@ -38,7 +38,7 @@ private:
 	HWND formHwnd;
 	wchar_t * currentText;
 public:
-	MainTextForm(HWND parentHwnd, WindowSizeData wsd);
+	MainTextForm(HWND parentHwnd, HINSTANCE hInstance, WindowSizeData wsd);
 	void SetFormText(LPCWSTR lpstrText);
 	void SetFormText(std::string strData);
 	void SetFormSize(WindowSizeData wsd);
