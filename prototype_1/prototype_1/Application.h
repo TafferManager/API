@@ -26,8 +26,8 @@ struct WindowSizeData
 class IPrototypeForm
 {
 public:
-	virtual void SetFormText(std::wstring wText) = 0;
-	virtual TCHAR * GetFormText() = 0;
+	virtual void SetFormText(LPCWSTR lpstrText) = 0;
+	virtual void SetFormText(std::string strData) = 0;
 	virtual void SetFormSize(WindowSizeData wsd) = 0;
 };
 
@@ -39,8 +39,8 @@ private:
 	wchar_t * currentText;
 public:
 	MainTextForm(HWND parentHwnd, WindowSizeData wsd);
-	void SetFormText(std::wstring wText);
-	wchar_t * GetFormText();
+	void SetFormText(LPCWSTR lpstrText);
+	void SetFormText(std::string strData);
 	void SetFormSize(WindowSizeData wsd);
 };
 
@@ -51,4 +51,5 @@ private:
 	std::wstring line;
 public:
 	LPWSTR ReadTextFromFileW(const TCHAR * path);
+	std::string ReadTextFromFile(const TCHAR * path);
 };

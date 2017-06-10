@@ -51,11 +51,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		MessageBox(NULL, _T("Call to CreateWindow failed!"), _T("Win32 Guided Tour"), NULL);
 	}
 
-	p_protoTracer->WriteLogEntry("Main window successfully created.");
+	p_protoTracer->WriteLogEntry("Main window has been successfully created.");
     p_textForm = new MainTextForm(hWnd, wsd);
-	if (p_textForm) p_protoTracer->WriteLogEntry("Text form successfully created and attached to the main window.");
+
+	if (p_textForm)
+		p_protoTracer->WriteLogEntry("Text form has been successfully created.");
 	p_fm = new FileManager;
-	if (p_fm) p_protoTracer->WriteLogEntry("File manager successfully created.");
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
@@ -86,10 +87,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		AppendMenu(hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, _T("&File"));
 
 		SetMenu(hWnd, hMenu);
-		if (hMenu)
-		{
-			p_protoTracer->WriteLogEntry("Menu created and appended to window.");
-		}
+
 		break;
 	case WM_SIZE:
 		RECT rc;
@@ -117,6 +115,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 	case WM_DESTROY:
+		p_protoTracer->WriteLogEntry("Exiting prototype_1...");
+		p_protoTracer->~ProtoTracer();
 		PostQuitMessage(0);
 		break;
 	default:
@@ -170,23 +170,25 @@ void ShowOpenFileDialog(HWND p_hWnd)
 	{
 		char buffer[300];
 		char filename[260];
-		wcstombs(filename, ofn.lpstrFile, 200);
-		sprintf(buffer, "File %s has been opened.", filename);
+		size_t convertedChars;
+		wcstombs_s(&convertedChars, filename, ofn.lpstrFile, 200);
+		sprintf_s(buffer, 300, "File %s has been successfully opened.", filename);
 		p_protoTracer->WriteLogEntry(buffer);
-		LPWSTR wText = p_fm->ReadTextFromFileW(ofn.lpstrFile);
-		p_textForm->SetFormText(wText);
+		//LPWSTR wText = p_fm->ReadTextFromFileW(ofn.lpstrFile);
+		std::string strData = p_fm->ReadTextFromFile(ofn.lpstrFile);
+		ZeroMemory(buffer, 300);
+		p_textForm->SetFormText(strData);
 
 		if (GetLastError() == (DWORD)0)
 		{
-			p_protoTracer->WriteLogEntry("Text data successfully loaded to text form, going to free text data memory...");
+			p_protoTracer->WriteLogEntry("Text data successfully loaded to text form, going to free text data from memory...");
 		}
 
 		else
 		{
 			ZeroMemory(buffer, 300);
-			sprintf(buffer, "Error %d occured when setting text to the text form.", (int)GetLastError());
+			sprintf_s(buffer, 300, "Error %d occured when setting text to the text form.", (int)GetLastError());
 			p_protoTracer->WriteLogEntry(buffer);
 		}
-		free(wText);
 	}
 }

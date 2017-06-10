@@ -16,7 +16,7 @@ LPWSTR FileManager::ReadTextFromFileW(const TCHAR * path)
 	{
 		char buffer[200];
 		size_t dataSize = strlen(data);
-		sprintf(buffer, "File has been mapped, %i bytes of data is ready for reading.", dataSize * sizeof(char));
+		sprintf_s(buffer, 200, "File has been mapped, %i bytes of data is ready for reading.", dataSize * sizeof(char));
 		p_protoTracer->WriteLogEntry(buffer);
 		wcharSize = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, data, dataSize, NULL, 0);
 		wStr = new WCHAR[wcharSize];
@@ -31,4 +31,31 @@ LPWSTR FileManager::ReadTextFromFileW(const TCHAR * path)
 	}
 
 	return wStr;
+}
+
+std::string FileManager::ReadTextFromFile(const TCHAR * path)
+{
+	LPCSTR lpcStr = 0;
+	size_t wcharSize = 0;
+	std::string strData;
+	HANDLE hFile = CreateFile(path, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	HANDLE hFileMapping = CreateFileMapping(hFile, NULL, PAGE_READWRITE, 0, 0, NULL);
+	LPVOID viewAddress = MapViewOfFile(hFileMapping, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+
+	lpcStr = (char*)viewAddress;
+
+	if (lpcStr)
+	{
+		char buffer[200];
+		size_t dataSize = strlen(lpcStr);
+		sprintf_s(buffer, 200, "File has been mapped, %i bytes of data is ready for reading.", dataSize * sizeof(char));
+		p_protoTracer->WriteLogEntry(buffer);
+		strData = lpcStr;
+		strData += '\0';
+		UnmapViewOfFile(viewAddress);
+		CloseHandle(hFileMapping);
+		CloseHandle(hFile);
+	}
+
+	return strData;
 }
