@@ -30,3 +30,12 @@ void MainTextForm::SetFormSize(WindowSizeData wsd)
 {
 	SetWindowPos(this->formHwnd, NULL, 0, 20, wsd.width - 100, wsd.height - 100, NULL);
 }
+
+LPSTR MainTextForm::GetFormText()
+{
+	int wndTextLength = GetWindowTextLengthA(formHwnd);
+	LPSTR formText = new char[wndTextLength];
+	GetWindowTextA(formHwnd, formText, wndTextLength);
+
+	return formText;
+}

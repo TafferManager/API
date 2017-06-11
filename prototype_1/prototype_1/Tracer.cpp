@@ -8,7 +8,7 @@ ProtoTracer::ProtoTracer()
 
 ProtoTracer::~ProtoTracer()
 {
-	WriteLogEntry("Going to close tracer file proto_1.log");
+	tracerStream << ">>> Going to close tracer file proto_1.log" << std::endl;
 	tracerStream.close();
 }
 

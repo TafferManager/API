@@ -3,6 +3,7 @@
 
 #define ID_FILE_EXIT   9001
 #define ID_FILE_OPEN   9002
+#define ID_FILE_SAVE   9003
 
 WindowSizeData wsd;
 IPrototypeForm * p_textForm;
@@ -13,6 +14,7 @@ std::stringstream ss("");
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 WindowSizeData SetWSDStruct(float width, float height);
 void ShowOpenFileDialog(HWND p_hWnd);
+void ShowSaveFileDialog(HWND p_hWnd);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -51,11 +53,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		MessageBox(NULL, _T("Call to CreateWindow failed!"), _T("Win32 Guided Tour"), NULL);
 	}
 
-	p_protoTracer->WriteLogEntry("Main window has been successfully created.");
+	p_protoTracer->WriteLogEntry("[INFO] Main window has been successfully created.");
     p_textForm = new MainTextForm(hWnd, hInstance, wsd);
 
 	if (p_textForm)
-		p_protoTracer->WriteLogEntry("Text form has been successfully created.");
+		p_protoTracer->WriteLogEntry("[INFO] Text form has been successfully created.");
 	p_fm = new FileManager;
 
 	ShowWindow(hWnd, nCmdShow);
@@ -83,6 +85,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		hSubMenu = CreatePopupMenu();
 		AppendMenu(hSubMenu, MF_STRING, ID_FILE_OPEN, _T("O&pen"));
+		AppendMenu(hSubMenu, MF_STRING, ID_FILE_SAVE, _T("&Save"));
 		AppendMenu(hSubMenu, MF_STRING, ID_FILE_EXIT, _T("E&xit"));
 		AppendMenu(hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, _T("&File"));
 
@@ -107,6 +110,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			ShowOpenFileDialog(hWnd);
 			return DefWindowProc(hWnd, message, wParam, lParam);
 			break;
+		case ID_FILE_SAVE:
+			ShowSaveFileDialog(hWnd);
+			return DefWindowProc(hWnd, message, wParam, lParam);
+			break;
 		case ID_FILE_EXIT:
 			PostQuitMessage(0);
 			break;
@@ -115,7 +122,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 	case WM_DESTROY:
-		p_protoTracer->WriteLogEntry("Exiting prototype_1...");
+		p_protoTracer->WriteLogEntry("[INFO] Exiting prototype_1...");
 		p_protoTracer->~ProtoTracer();
 		PostQuitMessage(0);
 		break;
@@ -165,14 +172,14 @@ void ShowOpenFileDialog(HWND p_hWnd)
 	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
 	//Display the Open dialog box.
-
+	
 	if (GetOpenFileName(&ofn) == TRUE)
 	{
 		char buffer[300];
 		char filename[260];
 		size_t convertedChars;
 		wcstombs_s(&convertedChars, filename, ofn.lpstrFile, 200);
-		sprintf_s(buffer, 300, "File %s has been successfully opened.", filename);
+		sprintf_s(buffer, 300, "[INFO] File %s has been successfully opened.", filename);
 		p_protoTracer->WriteLogEntry(buffer);
 		//LPWSTR wText = p_fm->ReadTextFromFileW(ofn.lpstrFile);
 		std::string strData = p_fm->ReadTextFromFile(ofn.lpstrFile);
@@ -181,14 +188,44 @@ void ShowOpenFileDialog(HWND p_hWnd)
 
 		if (GetLastError() == (DWORD)0)
 		{
-			p_protoTracer->WriteLogEntry("Text data successfully loaded to text form, going to free text data from memory...");
+			p_protoTracer->WriteLogEntry("[INFO] Text data successfully loaded to text form, going to free text data from memory...");
 		}
 
 		else
 		{
 			ZeroMemory(buffer, 300);
-			sprintf_s(buffer, 300, "Error %d occured when setting text to the text form.", (int)GetLastError());
+			sprintf_s(buffer, 300, "[ERROR] Error %d occured when setting text to the text form.", (int)GetLastError());
 			p_protoTracer->WriteLogEntry(buffer);
 		}
 	}
+}
+
+void ShowSaveFileDialog(HWND p_hWnd)
+{
+	OPENFILENAME ofn;
+	wchar_t szFile[260];
+
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = p_hWnd;
+	ofn.lpstrFile = szFile;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = TEXT("All\0*.*\0Text\0*.TXT\0");
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	ofn.Flags = NULL;
+
+	//Display the Save dialog box.
+
+	if (GetSaveFileName(&ofn) == TRUE)
+	{
+		LPSTR text = p_textForm->GetFormText();
+		p_fm->SaveTextToFile(ofn.lpstrFile, text);
+	}
+
+	else
+		DWORD err = GetLastError();
 }

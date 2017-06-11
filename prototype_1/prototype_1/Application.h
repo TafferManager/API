@@ -29,6 +29,7 @@ public:
 	virtual void SetFormText(LPCWSTR lpstrText) = 0;
 	virtual void SetFormText(std::string strData) = 0;
 	virtual void SetFormSize(WindowSizeData wsd) = 0;
+	virtual LPSTR GetFormText() = 0;
 };
 
 class MainTextForm : public IPrototypeForm
@@ -42,6 +43,7 @@ public:
 	void SetFormText(LPCWSTR lpstrText);
 	void SetFormText(std::string strData);
 	void SetFormSize(WindowSizeData wsd);
+	LPSTR GetFormText();
 };
 
 class FileManager
@@ -52,4 +54,5 @@ private:
 public:
 	LPWSTR ReadTextFromFileW(const TCHAR * path);
 	std::string ReadTextFromFile(const TCHAR * path);
+	void SaveTextToFile(const TCHAR * path, LPSTR & text);
 };
